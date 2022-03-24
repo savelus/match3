@@ -3858,19 +3858,22 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Mouse,
 		C3.Plugins.Spritefont2,
 		C3.Plugins.Touch,
-		C3.Plugins.System.Cnds.IsGroupActive,
-		C3.Plugins.Button.Cnds.OnClicked,
-		C3.Plugins.Arr.Acts.SetSize,
+		C3.Plugins.System.Cnds.OnLoadFinished,
 		C3.Plugins.System.Acts.SetVar,
-		C3.Plugins.System.Cnds.CompareVar,
-		C3.Plugins.Sprite.Acts.Destroy,
+		C3.Plugins.System.Cnds.For,
+		C3.Plugins.System.Acts.AddVar,
+		C3.Plugins.Arr.Acts.SetXY,
 		C3.Plugins.Arr.Cnds.ArrForEach,
 		C3.Plugins.Arr.Acts.Clear,
-		C3.Plugins.Arr.Acts.SetXY,
+		C3.Plugins.System.Cnds.IsGroupActive,
+		C3.Plugins.Arr.Acts.SetXYZ,
+		C3.Plugins.Button.Cnds.OnClicked,
+		C3.Plugins.Arr.Acts.SetSize,
+		C3.Plugins.System.Cnds.CompareVar,
+		C3.Plugins.Sprite.Acts.Destroy,
+		C3.Plugins.System.Exps.random,
 		C3.Plugins.Arr.Exps.CurX,
 		C3.Plugins.Arr.Exps.CurY,
-		C3.Plugins.System.Exps.random,
-		C3.Plugins.Arr.Exps.CurValue,
 		C3.Plugins.System.Acts.CreateObject,
 		C3.Plugins.TiledBg.Exps.X,
 		C3.Plugins.Sprite.Exps.Width,
@@ -3878,6 +3881,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Exps.Height,
 		C3.Plugins.Sprite.Acts.SetAnimFrame,
 		C3.Plugins.Sprite.Acts.SetInstanceVar,
+		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
 		C3.Plugins.Text.Acts.SetText,
 		C3.Plugins.Arr.Exps.At,
@@ -3885,16 +3889,12 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Touch.Cnds.IsInTouch,
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.Sprite.Exps.AnimationFrame,
-		C3.Plugins.System.Cnds.Every,
-		C3.Plugins.System.Cnds.For,
-		C3.Plugins.System.Acts.AddVar,
+		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Plugins.System.Acts.Wait,
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Arr.Cnds.CompareXY,
 		C3.Plugins.System.Acts.SubVar,
-		C3.Plugins.Arr.Cnds.CompareXYZ,
-		C3.Plugins.System.Cnds.OnLoadFinished,
-		C3.Plugins.Arr.Acts.SetXYZ
+		C3.Plugins.Arr.Cnds.CompareXYZ
 	];
 };
 self.C3_JsPropNameTable = [
@@ -3970,7 +3970,8 @@ self.C3_JsPropNameTable = [
 	{MaskX: 0},
 	{MaskMatch: 0},
 	{FirstGardenBedPositionY: 0},
-	{DistanceBetweenGardenBeds: 0}
+	{DistanceBetweenGardenBeds: 0},
+	{isNeedtoCheckField: 0}
 ];
 }
 
@@ -4071,21 +4072,38 @@ function or(l, r)
 }
 
 self.C3_ExpressionFuncs = [
-		() => "Clicks",
+		() => 0,
+		() => "X",
+		() => 1,
+		() => 6,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
-		() => 1,
-		() => 0,
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
+		() => 2,
+		() => 3,
+		() => 7,
+		() => 12,
+		() => 13,
+		() => 14,
+		() => 4,
+		() => 15,
+		() => 16,
+		() => "Заполнение масок",
+		() => 5,
+		() => 8,
+		() => 9,
+		() => 10,
+		() => 11,
+		() => "Clicks",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
-			return () => (Math.round(f0((v1.GetValue() - 1))) + 1);
+			return () => Math.round(f0(1, v1.GetValue()));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject();
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -4116,11 +4134,9 @@ self.C3_ExpressionFuncs = [
 			const v2 = p._GetNode(2).GetVar();
 			return () => (n0.ExpObject() + (v1.GetValue() * v2.GetValue()));
 		},
-		() => 2,
 		() => -200,
 		() => 200,
 		() => 100,
-		() => 3,
 		() => "Events",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
@@ -4131,14 +4147,12 @@ self.C3_ExpressionFuncs = [
 		},
 		() => "Выделенные клетки не являются соседями",
 		() => "Выделенные клетки можно обменять",
-		() => 4,
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
 			const n2 = p._GetNode(2);
 			return () => n0.ExpObject(n1.ExpObject(), n2.ExpObject());
 		},
-		() => 0.2,
 		() => "Analyze group",
 		() => -1,
 		() => "",
@@ -4148,7 +4162,6 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => (v0.GetValue() - 1);
 		},
-		() => "X",
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
@@ -4194,9 +4207,8 @@ self.C3_ExpressionFuncs = [
 			return () => multiply((-1), n0.ExpObject(v1.GetValue(), ((v2.GetValue() - v3.GetValue()) + v4.GetValue())));
 		},
 		() => "Replacing lines",
+		() => 0.2,
 		() => "Merging groups",
-		() => 6,
-		() => 7,
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
@@ -4214,7 +4226,6 @@ self.C3_ExpressionFuncs = [
 			return () => (v0.GetValue() + 1);
 		},
 		() => "K",
-		() => 16,
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const n1 = p._GetNode(1);
@@ -4244,17 +4255,7 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => ((v0.GetValue() + v1.GetValue()) - 1);
 		},
-		() => "Обменов нет. Игра окончена",
-		() => 12,
-		() => 13,
-		() => 14,
-		() => 15,
-		() => "Заполнение масок",
-		() => 5,
-		() => 8,
-		() => 9,
-		() => 10,
-		() => 11
+		() => "Обменов нет. Игра окончена"
 ];
 
 
