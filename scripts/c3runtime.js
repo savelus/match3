@@ -3890,11 +3890,13 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareInstanceVar,
 		C3.Plugins.Sprite.Exps.AnimationFrame,
 		C3.Plugins.System.Cnds.CompareBoolVar,
+		C3.Plugins.System.Cnds.CompareBetween,
 		C3.Plugins.System.Acts.Wait,
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Arr.Cnds.CompareXY,
 		C3.Plugins.System.Acts.SubVar,
-		C3.Plugins.Arr.Cnds.CompareXYZ
+		C3.Plugins.Arr.Cnds.CompareXYZ,
+		C3.Plugins.System.Cnds.Compare
 	];
 };
 self.C3_JsPropNameTable = [
@@ -3954,6 +3956,7 @@ self.C3_JsPropNameTable = [
 	{Z: 0},
 	{I: 0},
 	{K: 0},
+	{J: 0},
 	{Analyze: 0},
 	{CountInLine: 0},
 	{NumberofElement: 0},
@@ -3971,7 +3974,16 @@ self.C3_JsPropNameTable = [
 	{MaskMatch: 0},
 	{FirstGardenBedPositionY: 0},
 	{DistanceBetweenGardenBeds: 0},
-	{isNeedtoCheckField: 0}
+	{isNeedtoCheckField: 0},
+	{isCheckAfterMove: 0},
+	{ItemNumbeSuperBoost: 0},
+	{ItemNumberAfterDeletion: 0},
+	{ItemNumberAfterDrop: 0},
+	{PositionToPlaceBoostX: 0},
+	{PositionToPlaceBoostY: 0},
+	{TypeOfBooster: 0},
+	{BoosterPosX: 0},
+	{BoosterPosY: 0}
 ];
 }
 
@@ -4098,8 +4110,7 @@ self.C3_ExpressionFuncs = [
 		() => "Clicks",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
-			const v1 = p._GetNode(1).GetVar();
-			return () => Math.round(f0(1, v1.GetValue()));
+			return () => Math.round(f0(1, 5));
 		},
 		p => {
 			const n0 = p._GetNode(0);
@@ -4159,16 +4170,16 @@ self.C3_ExpressionFuncs = [
 		() => "Checking horizontal lines",
 		() => "Y",
 		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue() - 1);
-		},
-		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
 			const v2 = p._GetNode(2).GetVar();
-			return () => Math.abs(n0.ExpObject(v1.GetValue(), v2.GetValue()));
+			return () => (Math.abs(n0.ExpObject(v1.GetValue(), v2.GetValue())) % 5);
 		},
 		() => "Z",
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			return () => (v0.GetValue() - 1);
+		},
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			const v1 = p._GetNode(1).GetVar();
@@ -4183,6 +4194,32 @@ self.C3_ExpressionFuncs = [
 			const v4 = p._GetNode(4).GetVar();
 			return () => ((-1) * Math.abs(n0.ExpObject(((v1.GetValue() - v2.GetValue()) + v3.GetValue()), v4.GetValue())));
 		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			const v4 = p._GetNode(4).GetVar();
+			return () => Math.abs(n0.ExpObject(((v1.GetValue() - v2.GetValue()) + v3.GetValue()), v4.GetValue()));
+		},
+		() => 20,
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			return () => (v0.GetValue() - Math.round((v1.GetValue() / 2)));
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			return () => (v0.GetValue() - v1.GetValue());
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			return () => ((Math.abs(n0.ExpObject(v1.GetValue(), v2.GetValue())) % 5) + 5);
+		},
+		() => 21,
 		p => {
 			const n0 = p._GetNode(0);
 			const v1 = p._GetNode(1).GetVar();
@@ -4204,39 +4241,50 @@ self.C3_ExpressionFuncs = [
 			const v2 = p._GetNode(2).GetVar();
 			const v3 = p._GetNode(3).GetVar();
 			const v4 = p._GetNode(4).GetVar();
+			return () => Math.abs(n0.ExpObject(v1.GetValue(), ((v2.GetValue() - v3.GetValue()) + v4.GetValue())));
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const v1 = p._GetNode(1).GetVar();
+			return () => (v0.GetValue() + Math.round((v1.GetValue() / 2)));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			return () => ((Math.abs(n0.ExpObject(v1.GetValue(), v2.GetValue())) % 5) + (2 * 5));
+		},
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			const v3 = p._GetNode(3).GetVar();
+			const v4 = p._GetNode(4).GetVar();
 			return () => multiply((-1), n0.ExpObject(v1.GetValue(), ((v2.GetValue() - v3.GetValue()) + v4.GetValue())));
 		},
 		() => "Replacing lines",
 		() => 0.2,
 		() => "Merging groups",
+		() => 22,
+		() => 23,
 		p => {
 			const n0 = p._GetNode(0);
 			const n1 = p._GetNode(1);
 			const n2 = p._GetNode(2);
 			return () => n0.ExpObject(n1.ExpInstVar(), n2.ExpInstVar());
 		},
-		p => {
-			const f0 = p._GetNode(0).GetBoundMethod();
-			return () => f0(1, 5);
-		},
 		() => "Анализ на обмены",
 		() => "I",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			return () => (v0.GetValue() + 1);
-		},
 		() => "K",
 		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const n1 = p._GetNode(1);
-			const v2 = p._GetNode(2).GetVar();
-			return () => subtract(v0.GetValue(), n1.ExpObject(v2.GetValue(), 2));
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => subtract(6, n0.ExpObject(v1.GetValue(), 2));
 		},
 		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const n1 = p._GetNode(1);
-			const v2 = p._GetNode(2).GetVar();
-			return () => subtract(v0.GetValue(), n1.ExpObject(v2.GetValue(), 1));
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			return () => subtract(8, n0.ExpObject(v1.GetValue(), 1));
 		},
 		() => "MaskY",
 		p => {
@@ -4255,7 +4303,21 @@ self.C3_ExpressionFuncs = [
 			const v1 = p._GetNode(1).GetVar();
 			return () => ((v0.GetValue() + v1.GetValue()) - 1);
 		},
-		() => "Обменов нет. Игра окончена"
+		() => "Обменов нет. Игра окончена",
+		() => "Functions",
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			return () => ((-1) * Math.abs(mod(n0.ExpObject(v1.GetValue(), v2.GetValue()), 5)));
+		},
+		() => 17,
+		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const v2 = p._GetNode(2).GetVar();
+			return () => ((-1) * (Math.abs(n0.ExpObject(v1.GetValue(), v2.GetValue())) % 5));
+		}
 ];
 
 
